@@ -1,0 +1,40 @@
+./build/productSearch ./productSearch.conf
+
+gdb ./build/productSearch
+run ./productSearch.conf
+bt
+
+sudo rm -rf build && sudo rm -rf out
+mkdir build && mkdir out
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/fg/Desktop/COP3530-Project-2/out
+cmake --build build -j$(nproc)
+cmake --install build
+
+sudo rm -rf build && sudo rm -rf out
+mkdir build && mkdir out
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/fg/Desktop/COP3530-Project-2/gui/out
+cmake --build build -j$(nproc)
+cmake --install build
+
+sudo rm -rf build && sudo rm -rf out
+mkdir build && mkdir out
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/home/fg/Desktop/COP3530-Project-2/out
+cmake --build build -j$(nproc)
+cmake --install build
+
+sudo rm -rf build && sudo rm -rf out
+mkdir build && mkdir out
+cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/home/fg/Desktop/COP3530-Project-2/out
+cmake --build build -j$(nproc)
+cmake --install build
+
+sudo rm -rf build && sudo rm -rf out
+mkdir build && mkdir out
+cmake -S . -B build -DENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/fg/Desktop/COP3530-Project-2/out
+cmake --build build -j$(nproc)
+cmake --install build
+
+
+
+
+cat *.csv | wc -l
