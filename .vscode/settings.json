@@ -1,0 +1,16 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[cpp]": {
+    "editor.defaultFormatter": "xaver.clang-format",
+    "editor.formatOnSave": true
+  },
+  "C_Cpp.formatting": "clangFormat",
+  "C_Cpp.intelliSenseEngine": "default",
+  "C_Cpp.clang_format_style": "file",
+  "C_Cpp.clang_format_fallbackStyle": "Google",
+  "[cmake]": {
+    "editor.defaultFormatter": "cheshirekow.cmake-format",
+    "editor.formatOnSave": true
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/include",
+        "${workspaceFolder}/lib",
+        "${workspaceFolder}/lib/imgui",
+        "${workspaceFolder}/lib/imgui/backends",
+        "${workspaceFolder}/lib/implot",
+        "/usr/include/google",
+        "/usr/include/eigen3"
+      ],
+      "browse": {
+        "path": ["${workspaceFolder}/include", "${workspaceFolder}/lib"],
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+      },
+      "defines": [],
+      "compilerPath": "/usr/bin/clang++-19",
+      "cStandard": "c17",
+      "cppStandard": "c++23",
+      "intelliSenseMode": "linux-clang-x64"
+    }
+  ],
+  "version": 4
+}
