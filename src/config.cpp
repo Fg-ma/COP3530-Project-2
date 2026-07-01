@@ -1,5 +1,5 @@
 
-#include "productSearch/config.h"
+#include "product_search/config.h"
 
 #include <yaml-cpp/yaml.h>
 
