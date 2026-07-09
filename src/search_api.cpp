@@ -20,19 +20,8 @@ SearchAPI::SearchAPI(const std::string& dataPath)
   // Load products from CSV
   std::vector<Product> products = loadCSV(dataPath_);
 
-  for (auto& product : products) {
-    productIdTree_.insert(product);
-    productIdHeap_.insert(product);
-    productDescriptionTree_.insert(product);
-    productDescriptionHeap_.insert(product);
-    numReviewsTree_.insert(product);
-    numReviewsHeap_.insert(product);
-    priceTree_.insert(product);
-    priceHeap_.insert(product);
-    salesTree_.insert(product);
-    salesHeap_.insert(product);
-    stockTree_.insert(product);
-    stockHeap_.insert(product);
+  for (const auto& product : products) {
+    insert(product);
   }
 }
 
@@ -236,3 +225,150 @@ SearchRangeAnalytics SearchAPI::searchRange(const SearchRangeRequest& request) {
 
   return analytics;
 };
+
+InsertAnalytics SearchAPI::insert(const InsertRequest& request) {
+  InsertAnalytics analytics;
+  Timer timer;
+
+  if (std::holds_alternative<Product>(request.data)) {
+    Product product = std::get<Product>(request.data);
+
+    timer.start();
+    insertTree(product, request.insertField);
+    analytics.usTreeTimeTaken = timer.microseconds();
+    analytics.nsTreeTimeTaken = timer.nanoseconds();
+
+    timer.start();
+    insertHeap(product, request.insertField);
+    analytics.usHeapTimeTaken = timer.microseconds();
+    analytics.nsHeapTimeTaken = timer.nanoseconds();
+  } else if (std::holds_alternative<std::vector<Product>>(request.data)) {
+    std::vector<Product> products = std::get<std::vector<Product>>(request.data);
+
+    timer.start();
+    for (const auto& product : products) insertTree(product, request.insertField);
+    analytics.usTreeTimeTaken = timer.microseconds();
+    analytics.nsTreeTimeTaken = timer.nanoseconds();
+
+    timer.start();
+    for (const auto& product : products) insertHeap(product, request.insertField);
+    analytics.usHeapTimeTaken = timer.microseconds();
+    analytics.nsHeapTimeTaken = timer.nanoseconds();
+  }
+
+  return analytics;
+};
+
+void SearchAPI::insert(const Product& product, std::optional<ProductSearchField> insertField) {
+  if (insertField) {
+    switch (insertField.value()) {
+      case ProductSearchField::ProductId:
+        productIdTree_.insert(product);
+        productIdHeap_.insert(product);
+        break;
+      case ProductSearchField::ProductDescription:
+        productDescriptionTree_.insert(product);
+        productDescriptionHeap_.insert(product);
+        break;
+      case ProductSearchField::Price:
+        priceTree_.insert(product);
+        priceHeap_.insert(product);
+        break;
+      case ProductSearchField::NumReviews:
+        numReviewsTree_.insert(product);
+        numReviewsHeap_.insert(product);
+        break;
+      case ProductSearchField::Stock:
+        stockTree_.insert(product);
+        stockHeap_.insert(product);
+        break;
+      case ProductSearchField::Sales:
+        salesTree_.insert(product);
+        salesHeap_.insert(product);
+        break;
+      default:
+        break;
+    }
+  } else {
+    productIdTree_.insert(product);
+    productIdHeap_.insert(product);
+    productDescriptionTree_.insert(product);
+    productDescriptionHeap_.insert(product);
+    priceTree_.insert(product);
+    priceHeap_.insert(product);
+    numReviewsTree_.insert(product);
+    numReviewsHeap_.insert(product);
+    stockTree_.insert(product);
+    stockHeap_.insert(product);
+    salesTree_.insert(product);
+    salesHeap_.insert(product);
+  }
+}
+
+void SearchAPI::insertTree(const Product& product, std::optional<ProductSearchField> insertField) {
+  if (insertField) {
+    switch (insertField.value()) {
+      case ProductSearchField::ProductId:
+        productIdTree_.insert(product);
+        break;
+      case ProductSearchField::ProductDescription:
+        productDescriptionTree_.insert(product);
+        break;
+      case ProductSearchField::Price:
+        priceTree_.insert(product);
+        break;
+      case ProductSearchField::NumReviews:
+        numReviewsTree_.insert(product);
+        break;
+      case ProductSearchField::Stock:
+        stockTree_.insert(product);
+        break;
+      case ProductSearchField::Sales:
+        salesTree_.insert(product);
+        break;
+      default:
+        break;
+    }
+  } else {
+    productIdTree_.insert(product);
+    productDescriptionTree_.insert(product);
+    priceTree_.insert(product);
+    numReviewsTree_.insert(product);
+    stockTree_.insert(product);
+    salesTree_.insert(product);
+  }
+}
+
+void SearchAPI::insertHeap(const Product& product, std::optional<ProductSearchField> insertField) {
+  if (insertField) {
+    switch (insertField.value()) {
+      case ProductSearchField::ProductId:
+        productIdHeap_.insert(product);
+        break;
+      case ProductSearchField::ProductDescription:
+        productDescriptionHeap_.insert(product);
+        break;
+      case ProductSearchField::Price:
+        priceHeap_.insert(product);
+        break;
+      case ProductSearchField::NumReviews:
+        numReviewsHeap_.insert(product);
+        break;
+      case ProductSearchField::Stock:
+        stockHeap_.insert(product);
+        break;
+      case ProductSearchField::Sales:
+        salesHeap_.insert(product);
+        break;
+      default:
+        break;
+    }
+  } else {
+    productIdHeap_.insert(product);
+    productDescriptionHeap_.insert(product);
+    priceHeap_.insert(product);
+    numReviewsHeap_.insert(product);
+    stockHeap_.insert(product);
+    salesHeap_.insert(product);
+  }
+}

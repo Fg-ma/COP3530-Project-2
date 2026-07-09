@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -16,6 +17,8 @@ class SearchAPI {
   SearchAnalytics search(const SearchRequest& request);
   SearchRangeAnalytics searchRange(const SearchRangeRequest& request);
 
+  InsertAnalytics insert(const InsertRequest& request);
+
  private:
   std::string dataPath_;
 
@@ -31,4 +34,12 @@ class SearchAPI {
   MaxHeap salesHeap_;
   RedBlackTree stockTree_;
   MaxHeap stockHeap_;
+
+ private:
+  // Insertion helper
+  void insert(const Product& product, std::optional<ProductSearchField> insertField = std::nullopt);
+  void insertTree(const Product& product,
+                  std::optional<ProductSearchField> insertField = std::nullopt);
+  void insertHeap(const Product& product,
+                  std::optional<ProductSearchField> insertField = std::nullopt);
 };

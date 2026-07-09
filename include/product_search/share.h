@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -167,13 +168,13 @@ struct Product {
 
 struct SearchAnalytics {
   // Heap
-  int usHeapTimeTaken = 0;
-  int nsHeapTimeTaken = 0;
+  long long usHeapTimeTaken = 0;
+  long long nsHeapTimeTaken = 0;
   Product* heapResult = nullptr;
 
   // Tree
-  int usTreeTimeTaken = 0;
-  int nsTreeTimeTaken = 0;
+  long long usTreeTimeTaken = 0;
+  long long nsTreeTimeTaken = 0;
   Product* treeResult = nullptr;
 
   // Error
@@ -187,14 +188,14 @@ struct SearchRequest {
 
 struct SearchRangeAnalytics {
   // Heap
-  int usHeapTimeTaken = 0;
-  int nsHeapTimeTaken = 0;
+  long long usHeapTimeTaken = 0;
+  long long nsHeapTimeTaken = 0;
   std::vector<Product> heapResults = {};
   int heapResultsReturned = 0;
 
   // Tree
-  int usTreeTimeTaken = 0;
-  int nsTreeTimeTaken = 0;
+  long long usTreeTimeTaken = 0;
+  long long nsTreeTimeTaken = 0;
   std::vector<Product> treeResults = {};
   int treeResultsReturned = 0;
 
@@ -206,4 +207,22 @@ struct SearchRangeRequest {
   ProductSearchField searchField;
   std::variant<double, std::string> searchMinValue;
   std::variant<double, std::string> searchMaxValue;
+};
+
+struct InsertAnalytics {
+  // Heap
+  long long usHeapTimeTaken = 0;
+  long long nsHeapTimeTaken = 0;
+
+  // Tree
+  long long usTreeTimeTaken = 0;
+  long long nsTreeTimeTaken = 0;
+
+  // Error
+  std::string error = "";
+};
+
+struct InsertRequest {
+  std::optional<ProductSearchField> insertField;
+  std::variant<Product, std::vector<Product>> data;
 };
