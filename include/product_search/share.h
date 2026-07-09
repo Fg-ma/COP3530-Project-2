@@ -1,6 +1,10 @@
 #pragma once
 
 #include <string>
+#include <variant>
+#include <vector>
+
+// Config
 
 struct Config {
   std::string data_path;
@@ -8,6 +12,8 @@ struct Config {
   std::string log_file;
   int max_log_file_size;
 };
+
+// Products
 
 enum ProductCategory {
   AudioVideo,
@@ -21,8 +27,26 @@ enum ProductCategory {
   Toys
 };
 
-enum ProductCompareField { ProductId, ProductDescription, Price, NumReviews, Stock, Sales };
+enum ProductSearchField { ProductId, ProductDescription, Price, NumReviews, Stock, Sales };
 
+inline std::string toString(ProductSearchField field) {
+  switch (field) {
+    case ProductSearchField::ProductId:
+      return "ProductId";
+    case ProductSearchField::ProductDescription:
+      return "ProductDescription";
+    case ProductSearchField::Price:
+      return "Price";
+    case ProductSearchField::NumReviews:
+      return "NumReviews";
+    case ProductSearchField::Stock:
+      return "Stock";
+    case ProductSearchField::Sales:
+      return "Sales";
+  }
+
+  return "Unknown";
+}
 struct Product {
   int productId;
   std::string productDescription;
@@ -32,7 +56,7 @@ struct Product {
   int sales;
   ProductCategory category;
 
-  ProductCompareField compareField = ProductCompareField::ProductId;
+  ProductSearchField compareField = ProductSearchField::ProductId;
 
   Product()
       : productId(0),
@@ -52,7 +76,7 @@ struct Product {
         sales(sales_),
         category(category_) {}
 
-  void setCompareField(ProductCompareField field) {
+  void setCompareField(ProductSearchField field) {
     compareField = field;
   }
 
@@ -86,17 +110,17 @@ struct Product {
 
   bool operator<(const Product& other) const {
     switch (compareField) {
-      case ProductCompareField::ProductId:
+      case ProductSearchField::ProductId:
         return productId < other.productId;
-      case ProductCompareField::ProductDescription:
+      case ProductSearchField::ProductDescription:
         return productDescription < other.productDescription;
-      case ProductCompareField::Price:
+      case ProductSearchField::Price:
         return price < other.price;
-      case ProductCompareField::NumReviews:
+      case ProductSearchField::NumReviews:
         return numReviews < other.numReviews;
-      case ProductCompareField::Stock:
+      case ProductSearchField::Stock:
         return stock < other.stock;
-      case ProductCompareField::Sales:
+      case ProductSearchField::Sales:
         return sales < other.sales;
     }
     return false;
@@ -104,17 +128,17 @@ struct Product {
 
   bool operator>(const Product& other) const {
     switch (compareField) {
-      case ProductCompareField::ProductId:
+      case ProductSearchField::ProductId:
         return productId > other.productId;
-      case ProductCompareField::ProductDescription:
+      case ProductSearchField::ProductDescription:
         return productDescription > other.productDescription;
-      case ProductCompareField::Price:
+      case ProductSearchField::Price:
         return price > other.price;
-      case ProductCompareField::NumReviews:
+      case ProductSearchField::NumReviews:
         return numReviews > other.numReviews;
-      case ProductCompareField::Stock:
+      case ProductSearchField::Stock:
         return stock > other.stock;
-      case ProductCompareField::Sales:
+      case ProductSearchField::Sales:
         return sales > other.sales;
     }
     return false;
@@ -122,19 +146,64 @@ struct Product {
 
   bool operator==(const Product& other) const {
     switch (compareField) {
-      case ProductCompareField::ProductId:
+      case ProductSearchField::ProductId:
         return productId == other.productId;
-      case ProductCompareField::ProductDescription:
+      case ProductSearchField::ProductDescription:
         return productDescription == other.productDescription;
-      case ProductCompareField::Price:
+      case ProductSearchField::Price:
         return price == other.price;
-      case ProductCompareField::NumReviews:
+      case ProductSearchField::NumReviews:
         return numReviews == other.numReviews;
-      case ProductCompareField::Stock:
+      case ProductSearchField::Stock:
         return stock == other.stock;
-      case ProductCompareField::Sales:
+      case ProductSearchField::Sales:
         return sales == other.sales;
     }
     return false;
   }
+};
+
+// Search Api
+
+struct SearchAnalytics {
+  // Heap
+  int usHeapTimeTaken = 0;
+  int nsHeapTimeTaken = 0;
+  Product* heapResult = nullptr;
+
+  // Tree
+  int usTreeTimeTaken = 0;
+  int nsTreeTimeTaken = 0;
+  Product* treeResult = nullptr;
+
+  // Error
+  std::string error = "";
+};
+
+struct SearchRequest {
+  ProductSearchField searchField;
+  std::variant<double, std::string> searchValue;
+};
+
+struct SearchRangeAnalytics {
+  // Heap
+  int usHeapTimeTaken = 0;
+  int nsHeapTimeTaken = 0;
+  std::vector<Product> heapResults = {};
+  int heapResultsReturned = 0;
+
+  // Tree
+  int usTreeTimeTaken = 0;
+  int nsTreeTimeTaken = 0;
+  std::vector<Product> treeResults = {};
+  int treeResultsReturned = 0;
+
+  // Error
+  std::string error = "";
+};
+
+struct SearchRangeRequest {
+  ProductSearchField searchField;
+  std::variant<double, std::string> searchMinValue;
+  std::variant<double, std::string> searchMaxValue;
 };

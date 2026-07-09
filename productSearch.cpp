@@ -44,47 +44,16 @@ int main(int argc, char** argv) {
     SearchAPI searchAPI(config.data_path);
 
     // Testing logging remove eventually
-    // Product* productIdFound = productIdTree.search(88519805);
-    // if (productIdFound) info(productIdFound->productDescription);
-    // info("Product id max: ", productIdHeap.getMax().productDescription, " with ",
-    //      productIdHeap.getMax().productId);
-    // Product* productDescriptionFound = productDescriptionTree.search(
-    //     "Google indoor Nest Security Cam 1080p (Wired) - 2nd Generation - Snow");
-    // if (productDescriptionFound)
-    //   info(productDescriptionFound->productDescription, " ", productDescriptionFound->productId,
-    //        " ", productDescriptionFound->stock);
-    // Product* productDescriptionHeapFound = productDescriptionHeap.search(
-    //     "Google indoor Nest Security Cam 1080p (Wired) - 2nd Generation - Snow");
-    // if (productDescriptionHeapFound)
-    //   info(productDescriptionHeapFound->productDescription, " ",
-    //        productDescriptionHeapFound->productId, " ", productDescriptionHeapFound->stock);
-    // info("Product description max: ", productDescriptionHeap.getMax().productDescription, " with
-    // ",
-    //      productDescriptionHeap.getMax().productId);
-    // Product* numReviewsFound = numReviewsTree.search(11495);
-    // if (numReviewsFound) info(numReviewsFound->productDescription);
-    // info("Number of reviews max: ", numReviewsHeap.getMax().productDescription, " with ",
-    //      numReviewsHeap.getMax().numReviews);
-    // Product* priceFound = priceTree.search(199);
-    // if (priceFound) info(priceFound->productDescription);
-    // info("Price max: ", priceHeap.getMax().productDescription, " with ",
-    // priceHeap.getMax().price);
-    // std::vector<Product> priceFoundRange = priceTree.searchRange(199, 200);
-    // for (const auto& product : priceFoundRange) {
-    //   info("Price range found: ", product.productDescription, " with ", product.price);
-    // }
-    // info(priceFoundRange.size(), " products found in price range 199-200");
-    // std::vector<Product> priceFoundHeapRange = priceHeap.searchRange(199, 200);
-    // for (const auto& product : priceFoundHeapRange) {
-    //   info("Price range found: ", product.productDescription, " with ", product.price);
-    // }
-    // info(priceFoundHeapRange.size(), " products found in price range 199-200");
-    // Product* salesFound = salesTree.search(9528); if (salesFound)
-    // info(salesFound->productDescription); info("Sales max: ",
-    // salesHeap.getMax().productDescription, " with ", salesHeap.getMax().sales); Product*
-    // stockFound = stockTree.search(34); if (stockFound) info(stockFound->productDescription);
-    // info("Stock max: ", stockHeap.getMax().productDescription, " with ",
-    // stockHeap.getMax().stock);
+    auto result = searchAPI.search({ProductSearchField::ProductId, static_cast<double>(88519805)});
+    info("Found tree result: ", result.treeResult->productDescription,
+         " in time: ", result.nsTreeTimeTaken,
+         " nanoseconds. Found heap result: ", result.heapResult->productDescription,
+         " in time: ", result.nsHeapTimeTaken, " nanoseconds.");
+    auto priceResults = searchAPI.searchRange({ProductSearchField::Price, 199.0, 200.0});
+    info("Found price tree results: ", priceResults.heapResultsReturned,
+         " in time: ", priceResults.nsTreeTimeTaken,
+         " nanoseconds. Found heap result: ", priceResults.treeResultsReturned,
+         " in time: ", priceResults.nsHeapTimeTaken, " nanoseconds.");
 
     // Ui
     auto ui = std::make_shared<ProductSearchUI>();

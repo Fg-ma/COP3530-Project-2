@@ -21,7 +21,7 @@ struct RedBlackNode {
 
 class RedBlackTree {
  public:
-  RedBlackTree(ProductCompareField compareField);
+  RedBlackTree(ProductSearchField compareField);
   ~RedBlackTree();
 
   // Insert product - O(log n)
@@ -42,7 +42,7 @@ class RedBlackTree {
   RedBlackNode* getRoot() const;
 
  private:
-  ProductCompareField compareField_;
+  ProductSearchField compareField_;
 
   RedBlackNode* root;
   RedBlackNode* NIL;

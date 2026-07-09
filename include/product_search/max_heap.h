@@ -6,7 +6,7 @@
 
 class MaxHeap {
  public:
-  MaxHeap(ProductCompareField compareField) : compareField_(compareField){};
+  MaxHeap(ProductSearchField compareField) : compareField_(compareField){};
 
   // Insert product - O(log n)
   void insert(Product product);
@@ -30,7 +30,7 @@ class MaxHeap {
   std::vector<Product> searchRange(const std::string& minKey, const std::string& maxKey) const;
 
  private:
-  ProductCompareField compareField_;
+  ProductSearchField compareField_;
 
   std::vector<Product> heap;
 

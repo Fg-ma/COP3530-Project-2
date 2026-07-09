@@ -1,6 +1,6 @@
 #include "product_search/red_black_tree.h"
 
-RedBlackTree::RedBlackTree(ProductCompareField compareField) : compareField_(compareField) {
+RedBlackTree::RedBlackTree(ProductSearchField compareField) : compareField_(compareField) {
   NIL = new RedBlackNode(Product());
 
   NIL->color = RedBlackTreeColor::BLACK;

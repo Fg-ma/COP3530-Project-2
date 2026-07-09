@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+#include <variant>
+#include <vector>
+
 #include "product_search/max_heap.h"
 #include "product_search/red_black_tree.h"
 #include "product_search/share.h"
@@ -9,7 +13,8 @@ class SearchAPI {
   SearchAPI(const std::string& dataPath);
   ~SearchAPI() = default;
 
-  void search();
+  SearchAnalytics search(const SearchRequest& request);
+  SearchRangeAnalytics searchRange(const SearchRangeRequest& request);
 
  private:
   std::string dataPath_;
