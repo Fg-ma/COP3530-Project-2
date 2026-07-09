@@ -117,13 +117,65 @@ void RedBlackTree::rebalance(RedBlackNode* z) {
 RedBlackNode* RedBlackTree::searchRecurse(RedBlackNode* node, double searchValue) const {
   if (node == NIL) return nullptr;
 
-  double nodeKey = node->data.getKey();
+  double nodeKey = node->data.getDoubleKey();
 
   if (searchValue == nodeKey) return node;
 
   if (searchValue < nodeKey) return searchRecurse(node->left, searchValue);
 
   return searchRecurse(node->right, searchValue);
+}
+
+RedBlackNode* RedBlackTree::searchRecurse(RedBlackNode* node,
+                                          const std::string& searchValue) const {
+  if (node == NIL) return nullptr;
+
+  const std::string& nodeKey = node->data.getStringKey();
+
+  if (searchValue == nodeKey) return node;
+
+  if (searchValue < nodeKey) return searchRecurse(node->left, searchValue);
+
+  return searchRecurse(node->right, searchValue);
+}
+
+void RedBlackTree::searchRangeRecurse(RedBlackNode* node, double minValue, double maxValue,
+                                      std::vector<Product>& results) const {
+  if (node == NIL) return;
+
+  double key = node->data.getDoubleKey();
+
+  if (key >= minValue) {
+    searchRangeRecurse(node->left, minValue, maxValue, results);
+  }
+
+  if (key >= minValue && key <= maxValue) {
+    results.push_back(node->data);
+  }
+
+  if (key <= maxValue) {
+    searchRangeRecurse(node->right, minValue, maxValue, results);
+  }
+}
+
+void RedBlackTree::searchRangeRecurse(RedBlackNode* node, const std::string& minValue,
+                                      const std::string& maxValue,
+                                      std::vector<Product>& results) const {
+  if (node == NIL) return;
+
+  const std::string& key = node->data.getStringKey();
+
+  if (key >= minValue) {
+    searchRangeRecurse(node->left, minValue, maxValue, results);
+  }
+
+  if (key >= minValue && key <= maxValue) {
+    results.push_back(node->data);
+  }
+
+  if (key <= maxValue) {
+    searchRangeRecurse(node->right, minValue, maxValue, results);
+  }
 }
 
 // Public methods
@@ -166,6 +218,31 @@ Product* RedBlackTree::search(double searchValue) {
   if (result == nullptr) return nullptr;
 
   return &(result->data);
+}
+
+Product* RedBlackTree::search(const std::string& searchValue) {
+  RedBlackNode* result = searchRecurse(root, searchValue);
+
+  if (result == nullptr) return nullptr;
+
+  return &(result->data);
+}
+
+std::vector<Product> RedBlackTree::searchRange(double minValue, double maxValue) {
+  std::vector<Product> results;
+
+  searchRangeRecurse(root, minValue, maxValue, results);
+
+  return results;
+}
+
+std::vector<Product> RedBlackTree::searchRange(const std::string& minValue,
+                                               const std::string& maxValue) {
+  std::vector<Product> results;
+
+  searchRangeRecurse(root, minValue, maxValue, results);
+
+  return results;
 }
 
 bool RedBlackTree::contains(double searchValue) {

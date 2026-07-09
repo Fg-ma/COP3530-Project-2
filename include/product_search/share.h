@@ -21,7 +21,7 @@ enum ProductCategory {
   Toys
 };
 
-enum ProductCompareField { ProductId, Price, NumReviews, Stock, Sales };
+enum ProductCompareField { ProductId, ProductDescription, Price, NumReviews, Stock, Sales };
 
 struct Product {
   int productId;
@@ -56,7 +56,7 @@ struct Product {
     compareField = field;
   }
 
-  double getKey() const {
+  double getDoubleKey() const {
     switch (compareField) {
       case ProductId:
         return productId;
@@ -73,32 +73,68 @@ struct Product {
     return 0;
   }
 
-  double comparisonValue() const {
+  const std::string& getStringKey() const {
+    static const std::string emptyString{};
+
     switch (compareField) {
-      case ProductCompareField::ProductId:
-        return productId;
-      case ProductCompareField::Price:
-        return price;
-      case ProductCompareField::NumReviews:
-        return numReviews;
-      case ProductCompareField::Stock:
-        return stock;
-      case ProductCompareField::Sales:
-        return sales;
+      case ProductDescription:
+        return productDescription;
     }
 
-    return 0;
+    return emptyString;
   }
 
   bool operator<(const Product& other) const {
-    return comparisonValue() < other.comparisonValue();
+    switch (compareField) {
+      case ProductCompareField::ProductId:
+        return productId < other.productId;
+      case ProductCompareField::ProductDescription:
+        return productDescription < other.productDescription;
+      case ProductCompareField::Price:
+        return price < other.price;
+      case ProductCompareField::NumReviews:
+        return numReviews < other.numReviews;
+      case ProductCompareField::Stock:
+        return stock < other.stock;
+      case ProductCompareField::Sales:
+        return sales < other.sales;
+    }
+    return false;
   }
 
   bool operator>(const Product& other) const {
-    return comparisonValue() > other.comparisonValue();
+    switch (compareField) {
+      case ProductCompareField::ProductId:
+        return productId > other.productId;
+      case ProductCompareField::ProductDescription:
+        return productDescription > other.productDescription;
+      case ProductCompareField::Price:
+        return price > other.price;
+      case ProductCompareField::NumReviews:
+        return numReviews > other.numReviews;
+      case ProductCompareField::Stock:
+        return stock > other.stock;
+      case ProductCompareField::Sales:
+        return sales > other.sales;
+    }
+    return false;
   }
 
   bool operator==(const Product& other) const {
-    return comparisonValue() == other.comparisonValue();
+    switch (compareField) {
+      case ProductCompareField::ProductId:
+        return productId == other.productId;
+      case ProductCompareField::ProductDescription:
+        return productDescription == other.productDescription;
+      case ProductCompareField::Price:
+        return price == other.price;
+      case ProductCompareField::NumReviews:
+        return numReviews == other.numReviews;
+      case ProductCompareField::Stock:
+        return stock == other.stock;
+      case ProductCompareField::Sales:
+        return sales == other.sales;
+    }
+    return false;
   }
 };

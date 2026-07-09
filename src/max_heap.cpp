@@ -79,3 +79,52 @@ bool MaxHeap::empty() const {
 int MaxHeap::size() const {
   return heap.size();
 }
+
+Product* MaxHeap::search(double key) {
+  for (auto& product : heap) {
+    if (product.getDoubleKey() == key) {
+      return &product;
+    }
+  }
+
+  return nullptr;
+}
+
+Product* MaxHeap::search(const std::string& key) {
+  for (auto& product : heap) {
+    if (product.getStringKey() == key) {
+      return &product;
+    }
+  }
+
+  return nullptr;
+}
+
+std::vector<Product> MaxHeap::searchRange(double minKey, double maxKey) const {
+  std::vector<Product> results;
+
+  for (const auto& product : heap) {
+    double value = product.getDoubleKey();
+
+    if (value >= minKey && value <= maxKey) {
+      results.push_back(product);
+    }
+  }
+
+  return results;
+}
+
+std::vector<Product> MaxHeap::searchRange(const std::string& minKey,
+                                          const std::string& maxKey) const {
+  std::vector<Product> results;
+
+  for (const auto& product : heap) {
+    const std::string& value = product.getStringKey();
+
+    if (value >= minKey && value <= maxKey) {
+      results.push_back(product);
+    }
+  }
+
+  return results;
+}

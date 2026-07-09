@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "product_search/share.h"
 
@@ -23,16 +24,21 @@ class RedBlackTree {
   RedBlackTree(ProductCompareField compareField);
   ~RedBlackTree();
 
-  // Insert product
+  // Insert product - O(log n)
   void insert(Product product);
 
-  // Find product by searchValue
+  // Find product by searchValue - O(log n)
   Product* search(double searchValue);
+  Product* search(const std::string& searchValue);
 
-  // Does tree contain a product with searchValue?
+  // Adverage - O(log n + k), worst - O(n)
+  std::vector<Product> searchRange(double minValue, double maxValue);
+  std::vector<Product> searchRange(const std::string& minValue, const std::string& maxValue);
+
+  // Does tree contain a product with searchValue - O(log n)
   bool contains(double searchValue);
 
-  // root node
+  // root node - O(1)
   RedBlackNode* getRoot() const;
 
  private:
@@ -47,6 +53,12 @@ class RedBlackTree {
   void rebalance(RedBlackNode* z);
 
   RedBlackNode* searchRecurse(RedBlackNode* node, double searchValue) const;
+  RedBlackNode* searchRecurse(RedBlackNode* node, const std::string& searchValue) const;
+
+  void searchRangeRecurse(RedBlackNode* node, double minValue, double maxValue,
+                          std::vector<Product>& results) const;
+  void searchRangeRecurse(RedBlackNode* node, const std::string& minValue,
+                          const std::string& maxValue, std::vector<Product>& results) const;
 
   void destroyTree(RedBlackNode* node);
 };
