@@ -427,7 +427,7 @@ void ProductSearchUI::renderInsertControls() {
   bulkInsertCount_ = std::clamp(bulkInsertCount_, 1, 5000000);
 
   ImGui::Dummy(ImVec2(0, 10));
-  if (ImGui::Button("Generate && Insert", ImVec2(-1, 40))) {
+  if (ImGui::Button("Generate and insert", ImVec2(-1, 40))) {
     insertStatus_.clear();
     showAnalytics_ = false;
     hasInsertRun_ = true;
@@ -585,7 +585,7 @@ void ProductSearchUI::renderInsertResults() {
 
 void ProductSearchUI::renderProductCard(const Product& product) {
   ImGui::PushStyleColor(ImGuiCol_ChildBg, kCardBg);
-  ImGui::BeginChild("##productcard", ImVec2(ImGui::GetContentRegionAvail().x - 12.0f, 280), true);
+  ImGui::BeginChild("##productcard", ImVec2(ImGui::GetContentRegionAvail().x - 12.0f, 260), true);
 
   ImGui::TextColored(kAccentTree, "Product #%d", product.productId);
   ImGui::TextWrapped("%s", product.productDescription.c_str());
@@ -628,7 +628,7 @@ void ProductSearchUI::renderTimingBar(const char* label, ImVec4 color, long long
   frac = std::clamp(frac, 0.02f, 1.0f);
 
   ImVec2 pos = ImGui::GetCursorScreenPos();
-  float width = ImGui::GetContentRegionAvail().x;
+  float width = ImGui::GetContentRegionAvail().x - 12.0f;
   float height = 16.0f;
 
   ImDrawList* drawList = ImGui::GetWindowDrawList();
