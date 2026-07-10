@@ -226,6 +226,85 @@ SearchRangeAnalytics SearchAPI::searchRange(const SearchRangeRequest& request) {
   return analytics;
 };
 
+SearchAnalytics SearchAPI::max(const MaxRequest& request) {
+  SearchAnalytics analytics;
+  Timer timer;
+
+  switch (request.maxField) {
+    case ProductSearchField::ProductId:
+      timer.start();
+      analytics.treeResult = productIdTree_.max();
+      analytics.usTreeTimeTaken = timer.microseconds();
+      analytics.nsTreeTimeTaken = timer.nanoseconds();
+
+      timer.start();
+      analytics.heapResult = productIdHeap_.max();
+      analytics.usHeapTimeTaken = timer.microseconds();
+      analytics.nsHeapTimeTaken = timer.nanoseconds();
+      break;
+    case ProductSearchField::ProductDescription:
+      timer.start();
+      analytics.treeResult = productDescriptionTree_.max();
+      analytics.usTreeTimeTaken = timer.microseconds();
+      analytics.nsTreeTimeTaken = timer.nanoseconds();
+
+      timer.start();
+      analytics.heapResult = productDescriptionHeap_.max();
+      analytics.usHeapTimeTaken = timer.microseconds();
+      analytics.nsHeapTimeTaken = timer.nanoseconds();
+      break;
+    case ProductSearchField::Price:
+      timer.start();
+      analytics.treeResult = priceTree_.max();
+      analytics.usTreeTimeTaken = timer.microseconds();
+      analytics.nsTreeTimeTaken = timer.nanoseconds();
+
+      timer.start();
+      analytics.heapResult = priceHeap_.max();
+      analytics.usHeapTimeTaken = timer.microseconds();
+      analytics.nsHeapTimeTaken = timer.nanoseconds();
+      break;
+    case ProductSearchField::NumReviews:
+      timer.start();
+      analytics.treeResult = numReviewsTree_.max();
+      analytics.usTreeTimeTaken = timer.microseconds();
+      analytics.nsTreeTimeTaken = timer.nanoseconds();
+
+      timer.start();
+      analytics.heapResult = numReviewsHeap_.max();
+      analytics.usHeapTimeTaken = timer.microseconds();
+      analytics.nsHeapTimeTaken = timer.nanoseconds();
+      break;
+    case ProductSearchField::Stock:
+      timer.start();
+      analytics.treeResult = stockTree_.max();
+      analytics.usTreeTimeTaken = timer.microseconds();
+      analytics.nsTreeTimeTaken = timer.nanoseconds();
+
+      timer.start();
+      analytics.heapResult = stockHeap_.max();
+      analytics.usHeapTimeTaken = timer.microseconds();
+      analytics.nsHeapTimeTaken = timer.nanoseconds();
+      break;
+    case ProductSearchField::Sales:
+      timer.start();
+      analytics.treeResult = salesTree_.max();
+      analytics.usTreeTimeTaken = timer.microseconds();
+      analytics.nsTreeTimeTaken = timer.nanoseconds();
+
+      timer.start();
+      analytics.heapResult = salesHeap_.max();
+      analytics.usHeapTimeTaken = timer.microseconds();
+      analytics.nsHeapTimeTaken = timer.nanoseconds();
+      break;
+    default:
+      analytics.error = "Invalid search field";
+      return analytics;
+  }
+
+  return analytics;
+};
+
 InsertAnalytics SearchAPI::insert(const InsertRequest& request) {
   InsertAnalytics analytics;
   Timer timer;

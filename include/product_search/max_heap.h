@@ -15,7 +15,7 @@ class MaxHeap {
   Product extractMax();
 
   // Get max without removing it - O(1)
-  Product getMax() const;
+  Product* max() const;
 
   // Check if heap is empty - O(1)
   bool empty() const;

@@ -245,6 +245,18 @@ std::vector<Product> RedBlackTree::searchRange(const std::string& minValue,
   return results;
 }
 
+Product* RedBlackTree::max() {
+  if (root == NIL) return nullptr;
+
+  RedBlackNode* node = root;
+
+  while (node->right != NIL) {
+    node = node->right;
+  }
+
+  return &(node->data);
+}
+
 bool RedBlackTree::contains(double searchValue) {
   return search(searchValue) != nullptr;
 }

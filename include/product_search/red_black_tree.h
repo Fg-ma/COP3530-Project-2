@@ -35,6 +35,9 @@ class RedBlackTree {
   std::vector<Product> searchRange(double minValue, double maxValue);
   std::vector<Product> searchRange(const std::string& minValue, const std::string& maxValue);
 
+  // Return the maximum element - O(log n)
+  Product* max();
+
   // Does tree contain a product with searchValue - O(log n)
   bool contains(double searchValue);
 

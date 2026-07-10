@@ -16,6 +16,7 @@ class SearchAPI {
 
   SearchAnalytics search(const SearchRequest& request);
   SearchRangeAnalytics searchRange(const SearchRangeRequest& request);
+  SearchAnalytics max(const MaxRequest& request);
 
   InsertAnalytics insert(const InsertRequest& request);
 

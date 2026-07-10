@@ -265,6 +265,10 @@ struct SearchRangeRequest {
   std::variant<double, std::string> searchMaxValue;
 };
 
+struct MaxRequest {
+  ProductSearchField maxField;
+};
+
 struct InsertAnalytics {
   // Heap
   long long usHeapTimeTaken = 0;

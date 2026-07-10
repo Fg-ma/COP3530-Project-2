@@ -53,10 +53,10 @@ void MaxHeap::insert(Product product) {
   heapifyUp(heap.size() - 1);
 }
 
-Product MaxHeap::getMax() const {
-  if (heap.empty()) throw std::runtime_error("Heap empty");
+Product* MaxHeap::max() const {
+  if (heap.empty()) return nullptr;
 
-  return heap[0];
+  return const_cast<Product*>(&heap[0]);
 }
 
 Product MaxHeap::extractMax() {
