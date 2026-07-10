@@ -91,6 +91,9 @@ class ProductSearchUI {
   long long rangeNsTree_ = 0;
   long long rangeUsHeap_ = 0;
   long long rangeNsHeap_ = 0;
+  size_t visibleRows_ = 100;
+  ProductSearchField sortField_ = ProductSearchField::ProductId;
+  bool sortAscending_ = true;
 
   // Insert valus
   char insertIdBuf_[64] = "";

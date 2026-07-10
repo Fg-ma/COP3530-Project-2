@@ -386,32 +386,65 @@ void ProductSearchUI::renderInsertControls() {
   ImGui::Dummy(ImVec2(0, 14));
   if (ImGui::Button("Insert Product", ImVec2(-1, 40))) {
     insertStatus_.clear();
+    insertSummary_.clear();
     showAnalytics_ = false;
     hasInsertRun_ = true;
 
-    if (!api_) {
-      insertStatus_ = "Warning no SearchAPI attached to UI";
+    insertUsTree_ = 0;
+    insertNsTree_ = 0;
+    insertUsHeap_ = 0;
+    insertNsHeap_ = 0;
+
+    std::vector<std::string> missingFields;
+
+    if (strlen(insertIdBuf_) == 0) missingFields.push_back("Product ID");
+
+    if (strlen(insertDescBuf_) == 0) missingFields.push_back("Description");
+
+    if (strlen(insertPriceBuf_) == 0) missingFields.push_back("Price");
+
+    if (strlen(insertReviewsBuf_) == 0) missingFields.push_back("Num Reviews");
+
+    if (strlen(insertStockBuf_) == 0) missingFields.push_back("Stock");
+
+    if (strlen(insertSalesBuf_) == 0) missingFields.push_back("Sales");
+
+    if (!missingFields.empty()) {
+      insertStatus_ = "Missing required fields: ";
+
+      for (size_t i = 0; i < missingFields.size(); i++) {
+        insertStatus_ += missingFields[i];
+        if (i + 1 < missingFields.size()) insertStatus_ += ", ";
+      }
     } else {
-      try {
-        int id = std::stoi(insertIdBuf_);
-        double price = std::stod(insertPriceBuf_);
-        int reviews = std::stoi(insertReviewsBuf_);
-        int stock = std::stoi(insertStockBuf_);
-        int sales = std::stoi(insertSalesBuf_);
-        ProductCategory category = static_cast<ProductCategory>(insertCategory_);
+      if (!api_) {
+        insertStatus_ = "Warning no SearchAPI attached to UI";
+      } else {
+        try {
+          int id = std::stoi(insertIdBuf_);
+          double price = std::stod(insertPriceBuf_);
+          int reviews = std::stoi(insertReviewsBuf_);
+          int stock = std::stoi(insertStockBuf_);
+          int sales = std::stoi(insertSalesBuf_);
 
-        Product product(id, std::string(insertDescBuf_), price, reviews, stock, sales, category);
-        InsertRequest request{std::nullopt, product};
-        InsertAnalytics analytics = api_->insert(request);
+          ProductCategory category = static_cast<ProductCategory>(insertCategory_);
 
-        insertUsTree_ = analytics.usTreeTimeTaken;
-        insertNsTree_ = analytics.nsTreeTimeTaken;
-        insertUsHeap_ = analytics.usHeapTimeTaken;
-        insertNsHeap_ = analytics.nsHeapTimeTaken;
-        insertSummary_ =
-            "Inserted product #" + std::to_string(id) + " \"" + std::string(insertDescBuf_) + "\"";
-      } catch (const std::exception& ex) {
-        insertStatus_ = std::string("Invalid input: ") + ex.what();
+          Product product(id, std::string(insertDescBuf_), price, reviews, stock, sales, category);
+
+          InsertRequest request{std::nullopt, product};
+          InsertAnalytics analytics = api_->insert(request);
+
+          insertUsTree_ = analytics.usTreeTimeTaken;
+          insertNsTree_ = analytics.nsTreeTimeTaken;
+          insertUsHeap_ = analytics.usHeapTimeTaken;
+          insertNsHeap_ = analytics.nsHeapTimeTaken;
+
+          insertSummary_ = "Inserted product #" + std::to_string(id) + " \"" +
+                           std::string(insertDescBuf_) + "\"";
+
+        } catch (const std::exception& ex) {
+          insertStatus_ = std::string("Invalid input: ") + ex.what();
+        }
       }
     }
   }
@@ -464,6 +497,7 @@ void ProductSearchUI::renderSearchResults() {
   if (!searchStatus_.empty()) {
     ImGui::TextColored(kError, "%s", searchStatus_.c_str());
     ImGui::Dummy(ImVec2(0, 10));
+    return;
   }
 
   if (searchResult_) {
@@ -487,7 +521,9 @@ void ProductSearchUI::renderSearchResults() {
 
 void ProductSearchUI::renderRangeResults() {
   ImGui::Dummy(ImVec2(0, 10));
+
   ImGui::TextColored(ImVec4(0.92f, 0.93f, 0.95f, 1.0f), "Range search results");
+
   ImGui::Dummy(ImVec2(0, 4));
 
   if (!hasRangeRun_) {
@@ -498,51 +534,142 @@ void ProductSearchUI::renderRangeResults() {
   if (!rangeStatus_.empty()) {
     ImGui::TextColored(kError, "%s", rangeStatus_.c_str());
     ImGui::Dummy(ImVec2(0, 10));
+    return;
   }
 
   ImGui::Text("%zu results found", rangeResults_.size());
   ImGui::Dummy(ImVec2(0, 10));
 
-  ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
-                          ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable;
-  if (ImGui::BeginTable("##RangeTable", 5, flags, ImVec2(0, 320))) {
-    ImGui::TableSetupColumn("ID");
-    ImGui::TableSetupColumn("Description");
-    ImGui::TableSetupColumn("Price");
-    ImGui::TableSetupColumn("Reviews");
-    ImGui::TableSetupColumn("Stock");
+  ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10, 6));
+
+  ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter |
+                          ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_ScrollY |
+                          ImGuiTableFlags_Resizable | ImGuiTableFlags_Hideable |
+                          ImGuiTableFlags_Sortable;
+
+  if (ImGui::BeginTable("##RangeTable", 7, flags,
+                        ImVec2(ImGui::GetContentRegionAvail().x - 12.0f, 320))) {
+    ImGui::TableSetupColumn("ID",
+                            ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_DefaultSort,
+                            70, ProductSearchField::ProductId);
+    ImGui::TableSetupColumn("Description",
+                            ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_None, 0,
+                            ProductSearchField::ProductDescription);
+    ImGui::TableSetupColumn("Price", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_None,
+                            90, ProductSearchField::Price);
+    ImGui::TableSetupColumn("Reviews",
+                            ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_None, 80,
+                            ProductSearchField::NumReviews);
+    ImGui::TableSetupColumn("Stock", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_None,
+                            80, ProductSearchField::Stock);
+    ImGui::TableSetupColumn("Sales", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_None,
+                            80, ProductSearchField::Sales);
+    ImGui::TableSetupColumn("Category",
+                            ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_None, 140, 42);
+
+    ImGui::TableSetupScrollFreeze(0, 1);
+
     ImGui::TableHeadersRow();
 
-    size_t shown = std::min<size_t>(rangeResults_.size(), 500);
+    if (ImGuiTableSortSpecs* sortSpecs = ImGui::TableGetSortSpecs()) {
+      if (sortSpecs->SpecsDirty) {
+        const ImGuiTableColumnSortSpecs& spec = sortSpecs->Specs[0];
+
+        bool ascending = spec.SortDirection == ImGuiSortDirection_Ascending;
+
+        std::sort(
+            rangeResults_.begin(), rangeResults_.end(), [&](const Product& a, const Product& b) {
+              switch (spec.ColumnUserID) {
+                case ProductSearchField::ProductId:
+                  return ascending ? a.productId < b.productId : a.productId > b.productId;
+                case ProductSearchField::ProductDescription:
+                  return ascending ? a.productDescription < b.productDescription
+                                   : a.productDescription > b.productDescription;
+                case ProductSearchField::Price:
+                  return ascending ? a.price < b.price : a.price > b.price;
+                case ProductSearchField::NumReviews:
+                  return ascending ? a.numReviews < b.numReviews : a.numReviews > b.numReviews;
+                case ProductSearchField::Stock:
+                  return ascending ? a.stock < b.stock : a.stock > b.stock;
+                case ProductSearchField::Sales:
+                  return ascending ? a.sales < b.sales : a.sales > b.sales;
+                case 42:
+                  return ascending ? a.category < b.category : a.category > b.category;
+              }
+
+              return false;
+            });
+
+        sortSpecs->SpecsDirty = false;
+      }
+    }
+
+    size_t shown = std::min(visibleRows_, rangeResults_.size());
+
     for (size_t i = 0; i < shown; i++) {
       const auto& p = rangeResults_[i];
+
       ImGui::TableNextRow();
+
+      if (ImGui::IsItemHovered()) {
+        ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(70, 70, 90, 80));
+      }
+
       ImGui::TableSetColumnIndex(0);
       ImGui::Text("%d", p.productId);
+
       ImGui::TableSetColumnIndex(1);
+
       ImGui::TextUnformatted(p.productDescription.c_str());
+
       ImGui::TableSetColumnIndex(2);
       ImGui::Text("$%.2f", p.price);
+
       ImGui::TableSetColumnIndex(3);
       ImGui::Text("%d", p.numReviews);
+
       ImGui::TableSetColumnIndex(4);
       ImGui::Text("%d", p.stock);
+
+      ImGui::TableSetColumnIndex(5);
+      ImGui::Text("%d", p.sales);
+
+      ImGui::TableSetColumnIndex(6);
+      ImGui::TextUnformatted(toString(p.category).c_str());
     }
+
     ImGui::EndTable();
+
+    if (shown < rangeResults_.size()) {
+      ImGui::Dummy(ImVec2(0, 8));
+
+      if (ImGui::Button("Show More", ImVec2(140, 36))) {
+        visibleRows_ += 100;
+      }
+
+      ImGui::SameLine();
+
+      if (ImGui::Button("Show All", ImVec2(140, 36))) {
+        visibleRows_ = rangeResults_.size();
+      }
+
+      ImGui::TextDisabled("Showing %zu of %zu", shown, rangeResults_.size());
+    }
   }
 
-  if (rangeResults_.size() > 500) {
-    ImGui::TextDisabled("Showing first 500 of %zu products found", rangeResults_.size());
-  }
+  ImGui::PopStyleVar();
 
   ImGui::Dummy(ImVec2(0, 18));
+
   if (ImGui::Button(showAnalytics_ ? "Hide analytics" : "Show analytics", ImVec2(180, 38))) {
     showAnalytics_ = !showAnalytics_;
   }
 
   if (showAnalytics_) {
     renderAnalyticsPanel(rangeUsTree_, rangeNsTree_, rangeUsHeap_, rangeNsHeap_);
+
     ImGui::Dummy(ImVec2(0, 4));
+
     ImGui::TextDisabled("Tree found %zu     Heap found %zu", rangeTreeCount_, rangeHeapCount_);
   }
 }
@@ -560,11 +687,13 @@ void ProductSearchUI::renderInsertResults() {
   if (!insertStatus_.empty()) {
     ImGui::TextColored(kError, "%s", insertStatus_.c_str());
     ImGui::Dummy(ImVec2(0, 10));
+    return;
   }
 
   if (!insertSummary_.empty()) {
     ImGui::PushStyleColor(ImGuiCol_ChildBg, kCardBg);
-    ImGui::BeginChild("##insertsummary", ImVec2(0, 70), true);
+    ImGui::BeginChild("##insertsummary", ImVec2(ImGui::GetContentRegionAvail().x - 12.0f, 100),
+                      true);
     ImGui::TextColored(kAccentTree, "Success");
     ImGui::TextWrapped("%s", insertSummary_.c_str());
     ImGui::EndChild();
@@ -645,7 +774,11 @@ void ProductSearchUI::renderTimingBar(const char* label, ImVec4 color, long long
 void ProductSearchUI::renderAnalyticsPanel(long long usTree, long long nsTree, long long usHeap,
                                            long long nsHeap) {
   ImGui::Dummy(ImVec2(0, 6));
-  ImGui::Separator();
+  ImVec2 pos = ImGui::GetCursorScreenPos();
+  float width = ImGui::GetContentRegionAvail().x - 12.0f;
+  float thickness = 1.0f;
+  ImGui::GetWindowDrawList()->AddLine(pos, ImVec2(pos.x + width, pos.y),
+                                      ImGui::GetColorU32(ImGuiCol_Border), thickness);
   ImGui::Dummy(ImVec2(0, 12));
   ImGui::TextDisabled("PERFORMANCE");
   ImGui::Dummy(ImVec2(0, 8));
@@ -684,11 +817,12 @@ void ProductSearchUI::render() {
   // Left sidebar
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 22));
   ImGui::PushStyleColor(ImGuiCol_ChildBg, kSidebarBg);
+  ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
   ImGui::BeginChild("##Sidebar", ImVec2(340, 0), true);
   renderSidebar();
   ImGui::EndChild();
   ImGui::PopStyleColor();
-  ImGui::PopStyleVar();
+  ImGui::PopStyleVar(2);
 
   ImGui::SameLine();
 
