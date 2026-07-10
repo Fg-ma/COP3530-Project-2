@@ -28,6 +28,31 @@ enum ProductCategory {
   Toys
 };
 
+inline std::string toString(ProductCategory category) {
+  switch (category) {
+    case ProductCategory::AudioVideo:
+      return "Audio and Video";
+    case ProductCategory::Camera:
+      return "Cameras";
+    case ProductCategory::CarAccessories:
+      return "Car Accessories";
+    case ProductCategory::Laptop:
+      return "Laptops";
+    case ProductCategory::MenShoes:
+      return "Men's Shoes";
+    case ProductCategory::Men:
+      return "Men";
+    case ProductCategory::Mobile:
+      return "Mobile";
+    case ProductCategory::Movies:
+      return "Movies";
+    case ProductCategory::Toys:
+      return "Toys";
+  }
+
+  return "Unknown category";
+}
+
 enum ProductSearchField { ProductId, ProductDescription, Price, NumReviews, Stock, Sales };
 
 inline std::string toString(ProductSearchField field) {
@@ -48,6 +73,37 @@ inline std::string toString(ProductSearchField field) {
 
   return "Unknown";
 }
+
+inline const char* fieldLabel(ProductSearchField field) {
+  switch (field) {
+    case ProductSearchField::ProductId:
+      return "Product ID";
+    case ProductSearchField::ProductDescription:
+      return "Description";
+    case ProductSearchField::Price:
+      return "Price";
+    case ProductSearchField::NumReviews:
+      return "Num Reviews";
+    case ProductSearchField::Stock:
+      return "Stock";
+    case ProductSearchField::Sales:
+      return "Sales";
+    default:
+      return "Unknown";
+  }
+}
+
+inline bool fieldIsNumeric(ProductSearchField field) {
+  return field != ProductSearchField::ProductDescription;
+}
+
+constexpr ProductSearchField allFields[] = {
+    ProductSearchField::ProductId, ProductSearchField::ProductDescription,
+    ProductSearchField::Price,     ProductSearchField::NumReviews,
+    ProductSearchField::Stock,     ProductSearchField::Sales,
+};
+constexpr int allFieldCount = 6;
+
 struct Product {
   int productId;
   std::string productDescription;

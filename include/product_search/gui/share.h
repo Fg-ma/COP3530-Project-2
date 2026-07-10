@@ -1,5 +1,3 @@
 #pragma once
 
-#include <string>
-
-struct ProductSearchUIState {};
+enum class Mode { Search, RangeSearch, Insert };

@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     }
     Logger::init(config.log_file, config.max_log_file_size);
 
-    SearchAPI searchAPI(config.data_path);
+    auto searchAPI = std::make_shared<SearchAPI>(config.data_path);
 
     // Testing logging remove eventually
     // auto productIdAnalytics =
@@ -104,6 +104,7 @@ int main(int argc, char** argv) {
 
     // Ui
     auto ui = std::make_shared<ProductSearchUI>();
+    ui->setSearchAPI(searchAPI);
     std::thread uiThread([ui]() {
       try {
         runUIThread(ui);
