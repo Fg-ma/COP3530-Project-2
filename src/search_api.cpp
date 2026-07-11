@@ -305,6 +305,25 @@ SearchAnalytics SearchAPI::max(const MaxRequest& request) {
   return analytics;
 };
 
+DiskSizeAnalytics SearchAPI::diskSize() {
+  DiskSizeAnalytics analytics;
+
+  analytics.productIdTreeSize = productIdTree_.diskSize();
+  analytics.productIdHeapSize = productIdHeap_.diskSize();
+  analytics.productDescriptionTreeSize = productDescriptionTree_.diskSize();
+  analytics.productDescriptionHeapSize = productDescriptionHeap_.diskSize();
+  analytics.priceTreeSize = priceTree_.diskSize();
+  analytics.priceHeapSize = priceHeap_.diskSize();
+  analytics.numReviewsTreeSize = numReviewsTree_.diskSize();
+  analytics.numReviewsHeapSize = numReviewsHeap_.diskSize();
+  analytics.stockTreeSize = stockTree_.diskSize();
+  analytics.stockHeapSize = stockHeap_.diskSize();
+  analytics.salesTreeSize = salesTree_.diskSize();
+  analytics.salesHeapSize = salesHeap_.diskSize();
+
+  return analytics;
+};
+
 InsertAnalytics SearchAPI::insert(const InsertRequest& request) {
   InsertAnalytics analytics;
   Timer timer;

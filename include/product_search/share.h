@@ -269,6 +269,21 @@ struct MaxRequest {
   ProductSearchField maxField;
 };
 
+struct DiskSizeAnalytics {
+  size_t productIdTreeSize;
+  size_t productIdHeapSize;
+  size_t productDescriptionTreeSize;
+  size_t productDescriptionHeapSize;
+  size_t numReviewsTreeSize;
+  size_t numReviewsHeapSize;
+  size_t priceTreeSize;
+  size_t priceHeapSize;
+  size_t salesTreeSize;
+  size_t salesHeapSize;
+  size_t stockTreeSize;
+  size_t stockHeapSize;
+};
+
 struct InsertAnalytics {
   // Heap
   long long usHeapTimeTaken = 0;

@@ -32,6 +32,11 @@ class MaxHeap {
   std::vector<Product> searchRange(double minKey, double maxKey) const;
   std::vector<Product> searchRange(const std::string& minKey, const std::string& maxKey) const;
 
+  // Get the amount of space MaxHeap is taking up
+  size_t diskSize() const {
+    return sizeof(MaxHeap) + size_ * sizeof(Product);
+  }
+
  private:
   ProductSearchField compareField_;
 
@@ -40,18 +45,7 @@ class MaxHeap {
   int capacity_;
 
  private:
-  void resize() {
-    capacity_ *= 2;
-
-    Product* newHeap = new Product[capacity_];
-
-    for (int i = 0; i < size_; i++) {
-      newHeap[i] = heap[i];
-    }
-
-    delete[] heap;
-    heap = newHeap;
-  }
+  void resize();
 
   int parent(int i);
   int left(int i);

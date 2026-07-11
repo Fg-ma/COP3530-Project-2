@@ -44,6 +44,11 @@ class RedBlackTree {
   // root node - O(1)
   RedBlackNode* getRoot() const;
 
+  // Get the amount of space RedBlackTree is taking up
+  size_t diskSize() const {
+    return sizeof(RedBlackTree) + sizeof(RedBlackNode) * countNodes(root) + sizeof(RedBlackNode);
+  }
+
  private:
   ProductSearchField compareField_;
 
@@ -62,6 +67,8 @@ class RedBlackTree {
                           std::vector<Product>& results) const;
   void searchRangeRecurse(RedBlackNode* node, const std::string& minValue,
                           const std::string& maxValue, std::vector<Product>& results) const;
+
+  size_t countNodes(RedBlackNode* node) const;
 
   void destroyTree(RedBlackNode* node);
 };

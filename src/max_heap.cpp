@@ -2,6 +2,19 @@
 
 #include <stdexcept>
 
+void MaxHeap::resize() {
+  capacity_ *= 2;
+
+  Product* newHeap = new Product[capacity_];
+
+  for (int i = 0; i < size_; i++) {
+    newHeap[i] = heap[i];
+  }
+
+  delete[] heap;
+  heap = newHeap;
+}
+
 // Get parent index = (i - 1) / 2 (int division)
 int MaxHeap::parent(int i) {
   return (i - 1) / 2;

@@ -178,6 +178,12 @@ void RedBlackTree::searchRangeRecurse(RedBlackNode* node, const std::string& min
   }
 }
 
+size_t RedBlackTree::countNodes(RedBlackNode* node) const {
+  if (node == NIL) return 0;
+
+  return 1 + countNodes(node->left) + countNodes(node->right);
+}
+
 // Public methods
 
 void RedBlackTree::insert(Product product) {

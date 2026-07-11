@@ -18,6 +18,8 @@ class SearchAPI {
   SearchRangeAnalytics searchRange(const SearchRangeRequest& request);
   SearchAnalytics max(const MaxRequest& request);
 
+  DiskSizeAnalytics diskSize();
+
   InsertAnalytics insert(const InsertRequest& request);
 
  private:

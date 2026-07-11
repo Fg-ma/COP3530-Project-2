@@ -137,7 +137,7 @@ void ProductSearchUI::renderSidebar() {
     showAnalytics_ = false;
   }
 
-  ImGui::Dummy(ImVec2(0, 6.0f));
+  ImGui::Dummy(ImVec2(0, 2.0f));
 
   if (renderNavGridItem("Max", mode_ == Mode::Max, ImVec2(boxSize, boxSize))) {
     mode_ = Mode::Max;
@@ -146,6 +146,14 @@ void ProductSearchUI::renderSidebar() {
   ImGui::SameLine();
   if (renderNavGridItem("Insert", mode_ == Mode::Insert, ImVec2(boxSize, boxSize))) {
     mode_ = Mode::Insert;
+    showAnalytics_ = false;
+  }
+
+  ImGui::Dummy(ImVec2(0, 2.0f));
+
+  if (renderNavGridItem("Disk Usage", mode_ == Mode::DiskSize,
+                        ImVec2(ImGui::GetContentRegionAvail().x, 42.0f))) {
+    mode_ = Mode::DiskSize;
     showAnalytics_ = false;
   }
 
@@ -172,6 +180,8 @@ void ProductSearchUI::renderSidebar() {
     ImGui::Dummy(ImVec2(0, 20));
     ImGui::TextColored(ImVec4(0.95f, 0.45f, 0.45f, 1.0f), "No SearchAPI attached");
   }
+
+  ImGui::Dummy(ImVec2(0.0f, 240.0f));
 }
 
 void ProductSearchUI::renderContent() {
@@ -187,6 +197,9 @@ void ProductSearchUI::renderContent() {
       break;
     case Mode::Insert:
       renderInsertResults();
+      break;
+    case Mode::DiskSize:
+      renderDiskSizeResults();
       break;
   }
 }
@@ -650,8 +663,10 @@ void ProductSearchUI::renderRangeResults() {
                           ImGuiTableFlags_Resizable | ImGuiTableFlags_Hideable |
                           ImGuiTableFlags_Sortable;
 
+  ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10.0f, 8.0f));
+
   if (ImGui::BeginTable("##RangeTable", 7, flags,
-                        ImVec2(ImGui::GetContentRegionAvail().x - 12.0f, 320))) {
+                        ImVec2(ImGui::GetContentRegionAvail().x - 12.0f, 420))) {
     ImGui::TableSetupColumn("ID",
                             ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_DefaultSort,
                             70, ProductSearchField::ProductId);
@@ -760,7 +775,7 @@ void ProductSearchUI::renderRangeResults() {
     }
   }
 
-  ImGui::PopStyleVar();
+  ImGui::PopStyleVar(2);
 
   ImGui::Dummy(ImVec2(0, 18));
 
@@ -848,6 +863,82 @@ void ProductSearchUI::renderInsertResults() {
   if (showAnalytics_) {
     renderAnalyticsPanel(insertUsTree_, insertNsTree_, insertUsHeap_, insertNsHeap_);
   }
+}
+
+void ProductSearchUI::renderDiskSizeResults() {
+  ImGui::Dummy(ImVec2(0, 10));
+  ImGui::TextColored(kAccentTree, "Disk / Memory Usage");
+  ImGui::Dummy(ImVec2(0, 10));
+
+  if (!api_) {
+    ImGui::TextColored(kError, "No SearchAPI attached.");
+    return;
+  }
+
+  DiskSizeAnalytics sizes = api_->diskSize();
+
+  ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10.0f, 8.0f));
+
+  if (ImGui::BeginTable(
+          "##DiskSizes", 3,
+          ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp,
+          ImVec2(ImGui::GetContentRegionAvail().x - 12.0f, 0))) {
+    ImGui::TableSetupColumn("Structure");
+    ImGui::TableSetupColumn("Red-Black Tree");
+    ImGui::TableSetupColumn("Max Heap");
+    ImGui::TableHeadersRow();
+
+    auto row = [](const char* label, size_t tree, size_t heap) {
+      ImGui::TableNextRow();
+
+      ImGui::TableSetColumnIndex(0);
+      ImGui::TextUnformatted(label);
+
+      ImGui::TableSetColumnIndex(1);
+      ImGui::Text("%zu bytes", tree);
+
+      ImGui::TableSetColumnIndex(2);
+      ImGui::Text("%zu bytes", heap);
+    };
+
+    row("Product ID", sizes.productIdTreeSize, sizes.productIdHeapSize);
+
+    row("Description", sizes.productDescriptionTreeSize, sizes.productDescriptionHeapSize);
+
+    row("Price", sizes.priceTreeSize, sizes.priceHeapSize);
+
+    row("Reviews", sizes.numReviewsTreeSize, sizes.numReviewsHeapSize);
+
+    row("Stock", sizes.stockTreeSize, sizes.stockHeapSize);
+
+    row("Sales", sizes.salesTreeSize, sizes.salesHeapSize);
+
+    ImGui::EndTable();
+  }
+
+  ImGui::PopStyleVar();
+
+  ImGui::Dummy(ImVec2(0, 20));
+
+  size_t totalTree = sizes.productIdTreeSize + sizes.productDescriptionTreeSize +
+                     sizes.priceTreeSize + sizes.numReviewsTreeSize + sizes.stockTreeSize +
+                     sizes.salesTreeSize;
+
+  size_t totalHeap = sizes.productIdHeapSize + sizes.productDescriptionHeapSize +
+                     sizes.priceHeapSize + sizes.numReviewsHeapSize + sizes.stockHeapSize +
+                     sizes.salesHeapSize;
+
+  ImGui::Separator();
+  ImGui::Dummy(ImVec2(0, 10));
+
+  ImGui::TextColored(kAccentTree, "Totals");
+
+  ImGui::Text("Red-Black Trees : %.2f MB", totalTree / (1024.0 * 1024.0));
+
+  ImGui::TextColored(kAccentHeap, "Max Heaps      : %.2f MB", totalHeap / (1024.0 * 1024.0));
+
+  ImGui::Text("Difference      : %.2f MB",
+              std::abs((double)totalTree - (double)totalHeap) / (1024.0 * 1024.0));
 }
 
 // Widgets

@@ -51,6 +51,7 @@ class ProductSearchUI {
   void renderRangeResults();
   void renderMaxResults();
   void renderInsertResults();
+  void renderDiskSizeResults();
 
   // Usefil widgets
   void renderProductCard(const Product& product);
