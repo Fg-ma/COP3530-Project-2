@@ -181,7 +181,7 @@ void ProductSearchUI::renderSidebar() {
     ImGui::TextColored(ImVec4(0.95f, 0.45f, 0.45f, 1.0f), "No SearchAPI attached");
   }
 
-  ImGui::Dummy(ImVec2(0.0f, 320.0f));
+  ImGui::Dummy(ImVec2(0.0f, 400.0f));
 }
 
 void ProductSearchUI::renderContent() {
