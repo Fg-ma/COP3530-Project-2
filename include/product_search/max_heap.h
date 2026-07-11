@@ -1,15 +1,18 @@
 #pragma once
 
-#include <vector>
-
 #include "product_search/share.h"
 
 class MaxHeap {
  public:
-  MaxHeap(ProductSearchField compareField) : compareField_(compareField){};
+  MaxHeap(ProductSearchField compareField) : compareField_(compareField), size_(0), capacity_(8) {
+    heap = new Product[capacity_];
+  };
+  ~MaxHeap() {
+    delete[] heap;
+  }
 
   // Insert product - O(log n)
-  void insert(Product product);
+  void insert(const Product& product);
 
   // Get max and remove it - O(log n)
   Product extractMax();
@@ -32,7 +35,23 @@ class MaxHeap {
  private:
   ProductSearchField compareField_;
 
-  std::vector<Product> heap;
+  Product* heap;
+  int size_;
+  int capacity_;
+
+ private:
+  void resize() {
+    capacity_ *= 2;
+
+    Product* newHeap = new Product[capacity_];
+
+    for (int i = 0; i < size_; i++) {
+      newHeap[i] = heap[i];
+    }
+
+    delete[] heap;
+    heap = newHeap;
+  }
 
   int parent(int i);
   int left(int i);

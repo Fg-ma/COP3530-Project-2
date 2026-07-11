@@ -33,9 +33,9 @@ void MaxHeap::heapifyDown(int index) {
   int l = left(index);
   int r = right(index);
 
-  if (l < heap.size() && heap[l] > heap[largest]) largest = l;
+  if (l < size_ && heap[l] > heap[largest]) largest = l;
 
-  if (r < heap.size() && heap[r] > heap[largest]) largest = r;
+  if (r < size_ && heap[r] > heap[largest]) largest = r;
 
   if (largest != index) {
     std::swap(heap[index], heap[largest]);
@@ -46,44 +46,47 @@ void MaxHeap::heapifyDown(int index) {
 
 // Public methods
 
-void MaxHeap::insert(Product product) {
-  product.setCompareField(compareField_);
+void MaxHeap::insert(const Product& product) {
+  if (size_ == capacity_) {
+    resize();
+  }
 
-  heap.push_back(product);
-  heapifyUp(heap.size() - 1);
+  heap[size_] = product;
+  heapifyUp(size_);
+  size_++;
 }
 
 Product* MaxHeap::max() const {
-  if (heap.empty()) return nullptr;
+  if (empty()) return nullptr;
 
   return const_cast<Product*>(&heap[0]);
 }
 
 Product MaxHeap::extractMax() {
-  if (heap.empty()) throw std::runtime_error("Heap empty");
+  if (empty()) throw std::runtime_error("Heap empty");
 
   Product maxProduct = heap[0];
 
-  heap[0] = heap.back();
-  heap.pop_back();
+  heap[0] = heap[size_ - 1];
+  size_--;
 
-  if (!heap.empty()) heapifyDown(0);
+  if (!empty()) heapifyDown(0);
 
   return maxProduct;
 }
 
 bool MaxHeap::empty() const {
-  return heap.empty();
+  return size_ == 0;
 }
 
 int MaxHeap::size() const {
-  return heap.size();
+  return size_;
 }
 
 Product* MaxHeap::search(double key) {
-  for (auto& product : heap) {
-    if (product.getDoubleKey() == key) {
-      return &product;
+  for (int i = 0; i < size_; i++) {
+    if (heap[i].getDoubleKey() == key) {
+      return &heap[i];
     }
   }
 
@@ -91,9 +94,9 @@ Product* MaxHeap::search(double key) {
 }
 
 Product* MaxHeap::search(const std::string& key) {
-  for (auto& product : heap) {
-    if (product.getStringKey() == key) {
-      return &product;
+  for (int i = 0; i < size_; i++) {
+    if (heap[i].getStringKey() == key) {
+      return &heap[i];
     }
   }
 
@@ -103,11 +106,11 @@ Product* MaxHeap::search(const std::string& key) {
 std::vector<Product> MaxHeap::searchRange(double minKey, double maxKey) const {
   std::vector<Product> results;
 
-  for (const auto& product : heap) {
-    double value = product.getDoubleKey();
+  for (int i = 0; i < size_; i++) {
+    double value = heap[i].getDoubleKey();
 
     if (value >= minKey && value <= maxKey) {
-      results.push_back(product);
+      results.push_back(heap[i]);
     }
   }
 
@@ -118,11 +121,11 @@ std::vector<Product> MaxHeap::searchRange(const std::string& minKey,
                                           const std::string& maxKey) const {
   std::vector<Product> results;
 
-  for (const auto& product : heap) {
-    const std::string& value = product.getStringKey();
+  for (int i = 0; i < size_; i++) {
+    const std::string& value = heap[i].getStringKey();
 
     if (value >= minKey && value <= maxKey) {
-      results.push_back(product);
+      results.push_back(heap[i]);
     }
   }
 
