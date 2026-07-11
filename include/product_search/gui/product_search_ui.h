@@ -38,16 +38,18 @@ class ProductSearchUI {
   // Layout
   void renderSidebar();
   void renderContent();
-  bool renderNavItem(const char* label, bool active);
+  bool renderNavGridItem(const char* label, bool active, ImVec2 size);
 
   // Left sidebar controls
   void renderSearchControls();
   void renderRangeControls();
+  void renderMaxControls();
   void renderInsertControls();
 
   // Right side results
   void renderSearchResults();
   void renderRangeResults();
+  void renderMaxResults();
   void renderInsertResults();
 
   // Usefil widgets
@@ -94,6 +96,18 @@ class ProductSearchUI {
   size_t visibleRows_ = 100;
   ProductSearchField sortField_ = ProductSearchField::ProductId;
   bool sortAscending_ = true;
+
+  // Max values
+  int maxFieldIdx_ = 0;
+  std::string maxStatus_;
+  bool hasMaxRun_ = false;
+  std::optional<Product> maxResult_;
+  bool maxFoundTree_ = false;
+  bool maxFoundHeap_ = false;
+  long long maxUsTree_ = 0;
+  long long maxNsTree_ = 0;
+  long long maxUsHeap_ = 0;
+  long long maxNsHeap_ = 0;
 
   // Insert valus
   char insertIdBuf_[64] = "";

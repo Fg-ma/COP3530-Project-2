@@ -1,3 +1,3 @@
 #pragma once
 
-enum class Mode { Search, RangeSearch, Insert };
+enum class Mode { Search, RangeSearch, Max, Insert };

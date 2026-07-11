@@ -125,17 +125,26 @@ void ProductSearchUI::renderSidebar() {
   ImGui::TextDisabled("Red-Black Tree vs Max-Heap");
   ImGui::Dummy(ImVec2(0, 20));
 
-  if (renderNavItem("Search", mode_ == Mode::Search)) {
+  float boxSize = (ImGui::GetContentRegionAvail().x - 6.0f) * 0.5f;
+
+  if (renderNavGridItem("Search", mode_ == Mode::Search, ImVec2(boxSize, boxSize))) {
     mode_ = Mode::Search;
     showAnalytics_ = false;
   }
-  ImGui::Dummy(ImVec2(0, 4));
-  if (renderNavItem("Range Search", mode_ == Mode::RangeSearch)) {
+  ImGui::SameLine();
+  if (renderNavGridItem("Range Search", mode_ == Mode::RangeSearch, ImVec2(boxSize, boxSize))) {
     mode_ = Mode::RangeSearch;
     showAnalytics_ = false;
   }
-  ImGui::Dummy(ImVec2(0, 4));
-  if (renderNavItem("Insert", mode_ == Mode::Insert)) {
+
+  ImGui::Dummy(ImVec2(0, 6.0f));
+
+  if (renderNavGridItem("Max", mode_ == Mode::Max, ImVec2(boxSize, boxSize))) {
+    mode_ = Mode::Max;
+    showAnalytics_ = false;
+  }
+  ImGui::SameLine();
+  if (renderNavGridItem("Insert", mode_ == Mode::Insert, ImVec2(boxSize, boxSize))) {
     mode_ = Mode::Insert;
     showAnalytics_ = false;
   }
@@ -150,6 +159,9 @@ void ProductSearchUI::renderSidebar() {
       break;
     case Mode::RangeSearch:
       renderRangeControls();
+      break;
+    case Mode::Max:
+      renderMaxControls();
       break;
     case Mode::Insert:
       renderInsertControls();
@@ -170,27 +182,60 @@ void ProductSearchUI::renderContent() {
     case Mode::RangeSearch:
       renderRangeResults();
       break;
+    case Mode::Max:
+      renderMaxResults();
+      break;
     case Mode::Insert:
       renderInsertResults();
       break;
   }
 }
 
-bool ProductSearchUI::renderNavItem(const char* label, bool active) {
-  ImVec2 size(ImGui::GetContentRegionAvail().x, 42);
-  ImVec2 pos = ImGui::GetCursorScreenPos();
-
+bool ProductSearchUI::renderNavGridItem(const char* label, bool active, ImVec2 size) {
   ImGui::PushID(label);
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(16, 0));
-  bool clicked = ImGui::Selectable(label, active, 0, size);
-  ImGui::PopStyleVar();
-  ImGui::PopID();
+
+  ImGui::PushStyleColor(
+      ImGuiCol_ChildBg,
+      active ? ImVec4(kAccentTree.x, kAccentTree.y, kAccentTree.z, 0.18f) : kCardBg);
+
+  bool clicked = false;
+
+  ImGui::BeginChild(label, size, true,
+                    ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+  ImVec2 childSize = ImGui::GetWindowSize();
+  ImVec2 childPos = ImGui::GetWindowPos();
+
+  if (ImGui::InvisibleButton("button", childSize)) {
+    clicked = true;
+  }
+
+  bool hovered = ImGui::IsItemHovered();
+
+  if (hovered && !active) {
+    ImGui::GetWindowDrawList()->AddRectFilled(
+        childPos, ImVec2(childPos.x + childSize.x, childPos.y + childSize.y),
+        ImGui::GetColorU32(ImVec4(kAccentTree.x, kAccentTree.y, kAccentTree.z, 0.12f)), 6.0f);
+  }
 
   if (active) {
-    ImDrawList* dl = ImGui::GetWindowDrawList();
-    dl->AddRectFilled(pos, ImVec2(pos.x + 3, pos.y + size.y), ImGui::GetColorU32(kAccentTree),
-                      2.0f);
+    ImGui::GetWindowDrawList()->AddRectFilled(childPos,
+                                              ImVec2(childPos.x + 4, childPos.y + childSize.y),
+                                              ImGui::GetColorU32(kAccentTree), 4.0f);
   }
+
+  ImVec2 textSize = ImGui::CalcTextSize(label);
+
+  ImVec2 textPos(childPos.x + (childSize.x - textSize.x) * 0.5f,
+                 childPos.y + (childSize.y - textSize.y) * 0.5f);
+
+  ImGui::GetWindowDrawList()->AddText(textPos, ImGui::GetColorU32(ImGuiCol_Text), label);
+
+  ImGui::EndChild();
+
+  ImGui::PopStyleColor();
+  ImGui::PopID();
+
   return clicked;
 }
 
@@ -331,6 +376,64 @@ void ProductSearchUI::renderRangeControls() {
         rangeResults_ = analytics.treeResults;
         if (!analytics.error.empty()) rangeStatus_ = analytics.error;
       }
+    }
+  }
+}
+
+void ProductSearchUI::renderMaxControls() {
+  ImGui::TextDisabled("FIELD");
+
+  ImGui::SetNextItemWidth(-1);
+
+  if (ImGui::BeginCombo("##maxfield", fieldLabel(allFields[maxFieldIdx_]))) {
+    for (int i = 0; i < allFieldCount; i++) {
+      bool selected = maxFieldIdx_ == i;
+
+      if (ImGui::Selectable(fieldLabel(allFields[i]), selected)) {
+        maxFieldIdx_ = i;
+      }
+
+      if (selected) ImGui::SetItemDefaultFocus();
+    }
+
+    ImGui::EndCombo();
+  }
+
+  ImGui::Dummy(ImVec2(0, 16));
+
+  if (ImGui::Button("Find Maximum", ImVec2(-1, 40))) {
+    maxStatus_.clear();
+    maxResult_.reset();
+    hasMaxRun_ = true;
+    showAnalytics_ = false;
+
+    if (!api_) {
+      maxStatus_ = "Warning no SearchAPI attached to UI";
+      return;
+    }
+
+    MaxRequest request;
+    request.maxField = allFields[maxFieldIdx_];
+
+    SearchAnalytics analytics = api_->max(request);
+
+    maxUsTree_ = analytics.usTreeTimeTaken;
+    maxNsTree_ = analytics.nsTreeTimeTaken;
+
+    maxUsHeap_ = analytics.usHeapTimeTaken;
+    maxNsHeap_ = analytics.nsHeapTimeTaken;
+
+    maxFoundTree_ = analytics.treeResult != nullptr;
+    maxFoundHeap_ = analytics.heapResult != nullptr;
+
+    if (analytics.treeResult) {
+      maxResult_ = *analytics.treeResult;
+    } else if (analytics.heapResult) {
+      maxResult_ = *analytics.heapResult;
+    }
+
+    if (!analytics.error.empty()) {
+      maxStatus_ = analytics.error;
     }
   }
 }
@@ -671,6 +774,43 @@ void ProductSearchUI::renderRangeResults() {
     ImGui::Dummy(ImVec2(0, 4));
 
     ImGui::TextDisabled("Tree found %zu     Heap found %zu", rangeTreeCount_, rangeHeapCount_);
+  }
+}
+
+void ProductSearchUI::renderMaxResults() {
+  ImGui::Dummy(ImVec2(0, 10));
+
+  ImGui::TextColored(ImVec4(0.92f, 0.93f, 0.95f, 1), "Maximum result");
+
+  if (!hasMaxRun_) {
+    ImGui::TextDisabled("No results yet");
+    return;
+  }
+
+  if (!maxStatus_.empty()) {
+    ImGui::TextColored(kError, "%s", maxStatus_.c_str());
+    return;
+  }
+
+  if (maxResult_) {
+    renderProductCard(*maxResult_);
+  } else {
+    ImGui::TextDisabled("No product found");
+  }
+
+  ImGui::Dummy(ImVec2(0, 18));
+
+  if (ImGui::Button(showAnalytics_ ? "Hide analytics" : "Show analytics", ImVec2(180, 38))) {
+    showAnalytics_ = !showAnalytics_;
+  }
+
+  if (showAnalytics_) {
+    renderAnalyticsPanel(maxUsTree_, maxNsTree_, maxUsHeap_, maxNsHeap_);
+
+    ImGui::Dummy(ImVec2(0, 4));
+
+    ImGui::TextDisabled("Tree match: %s     Heap match: %s", maxFoundTree_ ? "yes" : "no",
+                        maxFoundHeap_ ? "yes" : "no");
   }
 }
 
